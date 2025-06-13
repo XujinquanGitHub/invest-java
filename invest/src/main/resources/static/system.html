@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>系统配置</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .config-form {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .nav-links {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="text-center mt-4">系统配置</h2>
+        
+        <div class="nav-links text-center">
+            <a href="config.html" class="btn btn-outline-primary">网页监控配置</a>
+        </div>
+        
+        <div class="config-form">
+            <form id="configForm">
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="enableYunFeiMonitor">
+                    <label class="form-check-label" for="enableYunFeiMonitor">开启云飞系统监控</label>
+                </div>
+                
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="enablePageChangeMonitor">
+                    <label class="form-check-label" for="enablePageChangeMonitor">开启页面变化监控</label>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="configPath" class="form-label">配置文件路径</label>
+                    <input type="text" class="form-control" id="configPath" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">保存配置</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 加载配置
+        function loadConfig() {
+            $.get('/api/system/config', function(config) {
+                $('#enableYunFeiMonitor').prop('checked', config.enableYunFeiMonitor);
+                $('#enablePageChangeMonitor').prop('checked', config.enablePageChangeMonitor);
+                $('#configPath').val(config.configPath);
+            });
+        }
+        
+        // 保存配置
+        $('#configForm').submit(function(e) {
+            e.preventDefault();
+            
+            const config = {
+                enableYunFeiMonitor: $('#enableYunFeiMonitor').is(':checked'),
+                enablePageChangeMonitor: $('#enablePageChangeMonitor').is(':checked'),
+                configPath: $('#configPath').val()
+            };
+            
+            $.ajax({
+                url: '/api/system/config',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(config),
+                success: function() {
+                    alert('配置保存成功！');
+                }
+            });
+        });
+        
+        // 页面加载时获取配置
+        $(document).ready(function() {
+            loadConfig();
+        });
+    </script>
+</body>
+</html> 

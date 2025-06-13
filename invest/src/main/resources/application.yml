@@ -1,0 +1,16 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: invest
+  profiles:
+    active: dev
+
+wx:
+  push:
+    token: ${WX_PUSH_TOKEN:your_wx_push_token_here}
+    template:
+      id: ${WX_PUSH_TEMPLATE_ID:your_template_id_here}
+
+# 其他配置... 

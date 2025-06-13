@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>网页监控配置</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .config-list {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .modal-form {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="text-center mt-4">网页监控配置</h2>
+        
+        <!-- 配置列表 -->
+        <div class="config-list">
+            <div class="d-flex justify-content-between mb-3">
+                <h3>现有配置</h3>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#configModal">添加配置</button>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>名称</th>
+                        <th>URL</th>
+                        <th>选择器</th>
+                        <th>间隔</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="configList"></tbody>
+            </table>
+        </div>
+        
+        <!-- 配置弹框 -->
+        <div class="modal fade" id="configModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">添加配置</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="configForm" class="modal-form">
+                            <input type="hidden" id="configId">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">配置名称</label>
+                                <input type="text" class="form-control" id="name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="url" class="form-label">监控URL</label>
+                                <input type="url" class="form-control" id="url" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="selector" class="form-label">CSS选择器</label>
+                                <input type="text" class="form-control" id="selector" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="description" class="form-label">描述</label>
+                                <textarea class="form-control" id="description" rows="3"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="interval" class="form-label">检查间隔（小时）</label>
+                                <input type="number" class="form-control" id="interval" min="1" value="1" required>
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="useTimeRange">
+                                <label class="form-check-label" for="useTimeRange">使用时间范围</label>
+                            </div>
+                            <div class="mb-3 time-range" style="display: none;">
+                                <div class="row">
+                                    <div class="col">
+                                        <label for="startTime" class="form-label">开始时间</label>
+                                        <input type="time" class="form-control" id="startTime">
+                                    </div>
+                                    <div class="col">
+                                        <label for="endTime" class="form-label">结束时间</label>
+                                        <input type="time" class="form-control" id="endTime">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="enabled" checked>
+                                <label class="form-check-label" for="enabled">启用监控</label>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" onclick="saveConfig()">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let configModal;
+        
+        $(document).ready(function() {
+            configModal = new bootstrap.Modal(document.getElementById('configModal'));
+            loadConfigs();
+            
+            // 监听时间范围复选框
+            $('#useTimeRange').change(function() {
+                $('.time-range').toggle($(this).is(':checked'));
+            });
+        });
+        
+        // 加载配置列表
+        function loadConfigs() {
+            $.get('/api/configs', function(configs) {
+                const tbody = $('#configList');
+                tbody.empty();
+                
+                configs.forEach(config => {
+                    tbody.append(`
+                        <tr>
+                            <td>${config.name}</td>
+                            <td>${config.url}</td>
+                            <td>${config.selector}</td>
+                            <td>${config.interval}小时</td>
+                            <td>${config.enabled ? '启用' : '禁用'}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="editConfig('${config.id}')">编辑</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteConfig('${config.id}')">删除</button>
+                            </td>
+                        </tr>
+                    `);
+                });
+            });
+        }
+        
+        // 保存配置
+        function saveConfig() {
+            const config = {
+                id: $('#configId').val(),
+                name: $('#name').val(),
+                url: $('#url').val(),
+                selector: $('#selector').val(),
+                description: $('#description').val(),
+                interval: parseInt($('#interval').val()),
+                enabled: $('#enabled').is(':checked'),
+                useTimeRange: $('#useTimeRange').is(':checked'),
+                startTime: $('#startTime').val(),
+                endTime: $('#endTime').val()
+            };
+            
+            $.ajax({
+                url: '/api/configs',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(config),
+                success: function() {
+                    configModal.hide();
+                    resetForm();
+                    loadConfigs();
+                }
+            });
+        }
+        
+        // 编辑配置
+        function editConfig(id) {
+            $.get(`/api/configs/${id}`, function(config) {
+                $('#configId').val(config.id);
+                $('#name').val(config.name);
+                $('#url').val(config.url);
+                $('#selector').val(config.selector);
+                $('#description').val(config.description);
+                $('#interval').val(config.interval);
+                $('#enabled').prop('checked', config.enabled);
+                $('#useTimeRange').prop('checked', config.useTimeRange);
+                $('#startTime').val(config.startTime);
+                $('#endTime').val(config.endTime);
+                
+                $('.time-range').toggle(config.useTimeRange);
+                configModal.show();
+            });
+        }
+        
+        // 删除配置
+        function deleteConfig(id) {
+            if (confirm('确定要删除这个配置吗？')) {
+                $.ajax({
+                    url: `/api/configs/${id}`,
+                    type: 'DELETE',
+                    success: function() {
+                        loadConfigs();
+                    }
+                });
+            }
+        }
+        
+        // 重置表单
+        function resetForm() {
+            $('#configForm')[0].reset();
+            $('#configId').val('');
+            $('.time-range').hide();
+        }
+        
+        // 监听弹框关闭事件
+        $('#configModal').on('hidden.bs.modal', function () {
+            resetForm();
+        });
+    </script>
+</body>
+</html> 

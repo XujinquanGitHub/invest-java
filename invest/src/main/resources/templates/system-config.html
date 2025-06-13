@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>系统配置</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>系统配置</h2>
+        <div class="nav-links mb-4">
+            <a href="/web-monitor-config" class="btn btn-outline-primary">网页监控配置</a>
+        </div>
+        
+        <form id="configForm">
+            <ul class="nav nav-tabs mb-3" id="configTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab" aria-controls="general" aria-selected="true">通用设置</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="wechat-tab" data-bs-toggle="tab" data-bs-target="#wechat" type="button" role="tab" aria-controls="wechat" aria-selected="false">微信推送配置</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="dingtalk-tab" data-bs-toggle="tab" data-bs-target="#dingtalk" type="button" role="tab" aria-controls="dingtalk" aria-selected="false">钉钉推送配置</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="yunfei-monitor-tab" data-bs-toggle="tab" data-bs-target="#yunfei-monitor" type="button" role="tab" aria-controls="yunfei-monitor" aria-selected="false">云飞监控配置</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="guoren-monitor-tab" data-bs-toggle="tab" data-bs-target="#guoren-monitor" type="button" role="tab" aria-controls="guoren-monitor" aria-selected="false">果仁网配置</button>
+                </li>
+            </ul>
+            <div class="tab-content" id="configTabContent">
+                <!-- 通用设置 Tab -->
+                <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="enableYunFeiMonitor">
+                            <label class="form-check-label" for="enableYunFeiMonitor">
+                                启用云飞系统监控
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="enablePageChangeMonitor">
+                            <label class="form-check-label" for="enablePageChangeMonitor">
+                                启用页面变化监控
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="enableGuorenMonitor">
+                            <label class="form-check-label" for="enableGuorenMonitor">
+                                启用果仁网推送
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="configPath" class="form-label">配置文件路径</label>
+                        <input type="text" class="form-control" id="configPath">
+                    </div>
+                </div>
+
+                <!-- 微信推送配置 Tab -->
+                <div class="tab-pane fade" id="wechat" role="tabpanel" aria-labelledby="wechat-tab">
+                    <div class="mb-3">
+                        <label for="wechatPushToken" class="form-label">微信推送 Token</label>
+                        <input type="text" class="form-control" id="wechatPushToken">
+                    </div>
+                    <div class="mb-3">
+                        <label for="wechatTemplateId" class="form-label">微信模板 ID</label>
+                        <input type="text" class="form-control" id="wechatTemplateId">
+                    </div>
+                    <div class="mb-3">
+                        <label for="wechatToUser" class="form-label">微信接收用户 ID (openid)</label>
+                        <input type="text" class="form-control" id="wechatToUser">
+                    </div>
+                </div>
+
+                <!-- 钉钉推送配置 Tab -->
+                <div class="tab-pane fade" id="dingtalk" role="tabpanel" aria-labelledby="dingtalk-tab">
+                    <div class="mb-3">
+                        <label for="dingtalkWebhookUrl" class="form-label">钉钉 Webhook URL</label>
+                        <input type="text" class="form-control" id="dingtalkWebhookUrl">
+                    </div>
+                </div>
+
+                <!-- 云飞监控配置 Tab -->
+                <div class="tab-pane fade" id="yunfei-monitor" role="tabpanel" aria-labelledby="yunfei-monitor-tab">
+                    <div class="mb-3">
+                        <label for="yunFeiStrategyIds" class="form-label">云飞策略ID (多个用逗号隔开)</label>
+                        <textarea class="form-control" id="yunFeiStrategyIds" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="yunFeiMonitorTimes" class="form-label">监控时间点 (格式: HH:mm,HH:mm; 多个用逗号隔开)</label>
+                        <textarea class="form-control" id="yunFeiMonitorTimes" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="yunFeiUsername" class="form-label">云飞系统登录用户名</label>
+                        <input type="text" class="form-control" id="yunFeiUsername">
+                    </div>
+                    <div class="mb-3">
+                        <label for="yunFeiPassword" class="form-label">云飞系统登录密码</label>
+                        <input type="password" class="form-control" id="yunFeiPassword">
+                    </div>
+                </div>
+
+                <!-- 果仁网配置 Tab -->
+                <div class="tab-pane fade" id="guoren-monitor" role="tabpanel" aria-labelledby="guoren-monitor-tab">
+                    <div class="mb-3">
+                        <button type="button" class="btn btn-primary" onclick="addGuorenConfig()">添加账号</button>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="guorenConfigTable">
+                            <thead>
+                                <tr>
+                                    <th>用户名</th>
+                                    <th>密码</th>
+                                    <th>策略ID</th>
+                                    <th>监控时间</th>
+                                    <th>监控星期</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 账号配置将通过JavaScript动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">保存配置</button>
+        </form>
+    </div>
+
+    <!-- 果仁网配置弹框 -->
+    <div class="modal fade" id="guorenConfigModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">果仁网账号配置</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="guorenConfigForm">
+                        <input type="hidden" id="guorenConfigIndex">
+                        <div class="mb-3">
+                            <label for="guorenUsername" class="form-label">用户名</label>
+                            <input type="text" class="form-control" id="guorenUsername" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="guorenPassword" class="form-label">密码</label>
+                            <input type="password" class="form-control" id="guorenPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="guorenStrategyIds" class="form-label">策略ID (多个用逗号隔开)</label>
+                            <textarea class="form-control" id="guorenStrategyIds" rows="2" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="guorenMonitorTimes" class="form-label">监控时间 (格式: HH:mm,HH:mm; 多个用逗号隔开)</label>
+                            <textarea class="form-control" id="guorenMonitorTimes" rows="2" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="guorenMonitorWeekdays" class="form-label">监控星期 (格式: 1,2,3,4,5; 1-7表示周一到周日)</label>
+                            <textarea class="form-control" id="guorenMonitorWeekdays" rows="2" required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="saveGuorenConfig()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 获取配置
+        function getSystemConfig() {
+            let config = null;
+            $.ajax({
+                url: '/api/system/config',
+                type: 'GET',
+                async: false,
+                success: function(response) {
+                    config = response;
+                }
+            });
+            return config;
+        }
+
+        // 保存配置
+        function saveSystemConfig(config) {
+            $.ajax({
+                url: '/api/system/config',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(config),
+                async: false
+            });
+        }
+
+        // 页面加载时获取配置
+        $(document).ready(function() {
+            const config = getSystemConfig();
+            if (config) {
+                document.getElementById('enableYunFeiMonitor').checked = config.enableYunFeiMonitor;
+                document.getElementById('enablePageChangeMonitor').checked = config.enablePageChangeMonitor;
+                document.getElementById('configPath').value = config.configPath || '';
+                document.getElementById('wechatPushToken').value = config.wechatPushToken || '';
+                document.getElementById('wechatTemplateId').value = config.wechatTemplateId || '';
+                document.getElementById('wechatToUser').value = config.wechatToUser || '';
+                document.getElementById('dingtalkWebhookUrl').value = config.dingtalkWebhookUrl || '';
+                document.getElementById('yunFeiStrategyIds').value = config.yunFeiStrategyIds || '';
+                document.getElementById('yunFeiMonitorTimes').value = config.yunFeiMonitorTimes || '';
+                document.getElementById('yunFeiUsername').value = config.yunFeiUsername || '';
+                document.getElementById('yunFeiPassword').value = config.yunFeiPassword || '';
+                
+                // 加载果仁网配置
+                if (config.guorenConfigs) {
+                    guorenConfigs = config.guorenConfigs;
+                    renderGuorenConfigTable();
+                }
+            }
+        });
+
+        // 保存按钮点击事件
+        document.getElementById('configForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const config = {
+                enableYunFeiMonitor: document.getElementById('enableYunFeiMonitor').checked,
+                enablePageChangeMonitor: document.getElementById('enablePageChangeMonitor').checked,
+                configPath: document.getElementById('configPath').value,
+                wechatPushToken: document.getElementById('wechatPushToken').value,
+                wechatTemplateId: document.getElementById('wechatTemplateId').value,
+                wechatToUser: document.getElementById('wechatToUser').value,
+                dingtalkWebhookUrl: document.getElementById('dingtalkWebhookUrl').value,
+                yunFeiStrategyIds: document.getElementById('yunFeiStrategyIds').value,
+                yunFeiMonitorTimes: document.getElementById('yunFeiMonitorTimes').value,
+                yunFeiUsername: document.getElementById('yunFeiUsername').value,
+                yunFeiPassword: document.getElementById('yunFeiPassword').value,
+                guorenConfigs: guorenConfigs
+            };
+            
+            saveSystemConfig(config);
+            alert('配置保存成功！');
+        });
+
+        // 果仁网配置相关
+        let guorenConfigs = [];
+        let guorenConfigModal;
+
+        $(document).ready(function() {
+            guorenConfigModal = new bootstrap.Modal(document.getElementById('guorenConfigModal'));
+        });
+
+        function renderGuorenConfigTable() {
+            const tbody = $('#guorenConfigTable tbody');
+            tbody.empty();
+            
+            guorenConfigs.forEach((config, index) => {
+                tbody.append(`
+                    <tr>
+                        <td>${config.username}</td>
+                        <td>******</td>
+                        <td>${config.strategyIds}</td>
+                        <td>${config.monitorTimes}</td>
+                        <td>${config.monitorWeekdays}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary me-2" onclick="editGuorenConfig(${index})">编辑</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteGuorenConfig(${index})">删除</button>
+                        </td>
+                    </tr>
+                `);
+            });
+        }
+
+        function addGuorenConfig() {
+            $('#guorenConfigIndex').val('');
+            $('#guorenConfigForm')[0].reset();
+            guorenConfigModal.show();
+        }
+
+        function editGuorenConfig(index) {
+            const config = guorenConfigs[index];
+            $('#guorenConfigIndex').val(index);
+            $('#guorenUsername').val(config.username);
+            $('#guorenPassword').val(config.password);
+            $('#guorenStrategyIds').val(config.strategyIds);
+            $('#guorenMonitorTimes').val(config.monitorTimes);
+            $('#guorenMonitorWeekdays').val(config.monitorWeekdays);
+            guorenConfigModal.show();
+        }
+
+        function saveGuorenConfig() {
+            const index = $('#guorenConfigIndex').val();
+            const config = {
+                username: $('#guorenUsername').val(),
+                password: $('#guorenPassword').val(),
+                strategyIds: $('#guorenStrategyIds').val(),
+                monitorTimes: $('#guorenMonitorTimes').val(),
+                monitorWeekdays: $('#guorenMonitorWeekdays').val()
+            };
+            
+            if (index === '') {
+                guorenConfigs.push(config);
+            } else {
+                guorenConfigs[parseInt(index)] = config;
+            }
+            
+            // 更新系统配置
+            const systemConfig = getSystemConfig();
+            systemConfig.guorenConfigs = guorenConfigs;
+            saveSystemConfig(systemConfig);
+            
+            guorenConfigModal.hide();
+            renderGuorenConfigTable();
+        }
+
+        function deleteGuorenConfig(index) {
+            if (confirm('确定要删除这个账号配置吗？')) {
+                guorenConfigs.splice(index, 1);
+                
+                // 更新系统配置
+                const systemConfig = getSystemConfig();
+                systemConfig.guorenConfigs = guorenConfigs;
+                saveSystemConfig(systemConfig);
+                
+                renderGuorenConfigTable();
+            }
+        }
+    </script>
+</body>
+</html> 

@@ -66,7 +66,7 @@ public class YunFeiContentUtilTest {
         yunFeiContentUtil.getStrategyDetail(testId);
 
         verify(yunFeiLoginUtil, times(1)).getCookies();
-        verify(pushService, times(1)).send(eq("策略详情"), anyString());
+        verify(pushService, times(1)).pushMessage(eq("策略详情"), anyString());
     }
 
     @Test
@@ -78,7 +78,7 @@ public class YunFeiContentUtilTest {
         yunFeiContentUtil.getStrategyDetail(testId);
 
         verify(yunFeiLoginUtil, times(1)).getCookies();
-        verify(pushService, times(1)).send(eq("错误提示"), eq("未找到登录Cookie，请先登录"));
+        verify(pushService, times(1)).pushMessage(eq("错误提示"), eq("未找到登录Cookie，请先登录"));
         verifyNoMoreInteractions(pushService); // 确保没有其他推送
     }
 
@@ -96,6 +96,6 @@ public class YunFeiContentUtilTest {
 
         verify(yunFeiLoginUtil, times(1)).getCookies();
         // 验证当发生异常时，pushService是否被调用，并且错误信息是否正确
-        verify(pushService, times(1)).send(eq("错误提示"), contains("获取策略详情失败"));
+        verify(pushService, times(1)).pushMessage(eq("错误提示"), contains("获取策略详情失败"));
     }
 } 

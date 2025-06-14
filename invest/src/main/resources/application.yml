@@ -9,8 +9,10 @@ spring:
 
 wx:
   push:
-    token: ${WX_PUSH_TOKEN:your_wx_push_token_here}
+    token: ${WX_PUSH_TOKEN:AT_2yFMb9NeZh78sKcMrVSRtGAKOen0xOtn}
     template:
-      id: ${WX_PUSH_TEMPLATE_ID:your_template_id_here}
+      id: ${WX_PUSH_TEMPLATE_ID:12345}
+    topic:
+      ids: ${WX_PUSH_TOPIC_IDS:12345}
 
 # 其他配置... 

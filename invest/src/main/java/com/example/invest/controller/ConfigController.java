@@ -1,6 +1,7 @@
 package com.example.invest.controller;
 
 import com.example.invest.model.WebMonitorConfig;
+import com.example.invest.model.YunMonitorConfig;
 import com.example.invest.util.ConfigManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,42 +12,39 @@ import java.util.List;
 import javax.annotation.Resource;
 
 @RestController
-@RequestMapping("/api/configs")
+@RequestMapping("/api/config")
 public class ConfigController {
     
     @Resource
     private ConfigManager configManager;
     
-    @GetMapping
-    public List<WebMonitorConfig> getAllConfigs() {
-        return configManager.loadConfigs();
+    @GetMapping("/web-monitor")
+    public List<WebMonitorConfig> getWebMonitorConfigs() {
+        return configManager.loadWebMonitorConfigs();
     }
     
-    @GetMapping("/{id}")
-    public WebMonitorConfig getConfig(@PathVariable String id) {
-        return configManager.loadConfigs().stream()
-                .filter(config -> config.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+    @GetMapping("/yun-monitor")
+    public List<YunMonitorConfig> getYunMonitorConfigs() {
+        return configManager.loadYunMonitorConfigs();
     }
     
-    @PostMapping
-    public ResponseEntity<String> saveConfig(@RequestBody WebMonitorConfig config) {
-        try {
-            configManager.saveConfig(config);
-            return new ResponseEntity<>("配置保存成功", HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    @PostMapping("/web-monitor")
+    public void saveWebMonitorConfig(@RequestBody WebMonitorConfig config) {
+        configManager.saveWebMonitorConfig(config);
     }
     
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteConfig(@PathVariable String id) {
-        try {
-            configManager.deleteConfig(id);
-            return new ResponseEntity<>("配置删除成功", HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    @PostMapping("/yun-monitor")
+    public void saveYunMonitorConfig(@RequestBody YunMonitorConfig config) {
+        configManager.saveYunMonitorConfig(config);
+    }
+    
+    @DeleteMapping("/web-monitor/{id}")
+    public void deleteWebMonitorConfig(@PathVariable String id) {
+        configManager.deleteWebMonitorConfig(id);
+    }
+    
+    @DeleteMapping("/yun-monitor/{id}")
+    public void deleteYunMonitorConfig(@PathVariable String id) {
+        configManager.deleteYunMonitorConfig(id);
     }
 } 

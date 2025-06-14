@@ -1,7 +1,7 @@
 package com.example.invest.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.example.invest.util.CookieManager;
+import com.example.invest.service.CookieManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,7 +32,7 @@ public class DataReceiverController {
         log.info("收到来自 [{}] 的数据。Cookie: {}, 载荷: {}", domain, cookies, payload != null ? payload.toJSONString() : "无");
 
         // 保存 Cookie
-        cookieManager.saveCookies(domain, cookies);
+        cookieManager.setCookies(domain, cookies);
 
         // TODO: 在这里你可以根据 payload 的内容，添加其他网站数据的存储逻辑
         // 例如，如果 payload 包含股票数据，可以解析并存储到数据库或特定文件。

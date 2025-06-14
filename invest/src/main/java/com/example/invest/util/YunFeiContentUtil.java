@@ -31,7 +31,7 @@ public class YunFeiContentUtil {
     @Resource
     private SystemConfigManager systemConfigManager;
     
-    private static final String BASE_URL = "https://www.ycyflh.com";
+    private static final String BASE_URL = "http://www.yunfei.com";
     
     /**
      * 获取策略详情内容
@@ -43,7 +43,7 @@ public class YunFeiContentUtil {
         // 获取已保存的Cookie
         String cookies = yunFeiLoginUtil.getCookies();
         if (cookies == null) {
-            pushService.send("错误提示", "未找到登录Cookie，请先登录");
+            pushService.pushError("错误提示", "未找到登录Cookie，请先登录");
             return;
         }
         
@@ -62,15 +62,15 @@ public class YunFeiContentUtil {
                 Element table = content.selectFirst("table");
                 if (table != null) {
                     // 发送推送
-                    pushService.send("策略详情", table.text());
+                    pushService.pushMessage("策略详情", table.text());
                 } else {
-                    pushService.send("提示", "未找到策略内容");
+                    pushService.pushMessage("提示", "未找到策略内容");
                 }
             } else {
-                pushService.send("提示", "未找到内容区域");
+                pushService.pushMessage("提示", "未找到内容区域");
             }
         } catch (Exception e) {
-            pushService.send("错误提示", "获取策略详情失败：" + e.getMessage());
+            pushService.pushError("错误提示", "获取策略详情失败：" + e.getMessage());
         }
     }
 

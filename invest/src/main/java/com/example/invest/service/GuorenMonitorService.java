@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.DayOfWeek;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
@@ -22,7 +22,7 @@ public class GuorenMonitorService {
     private SystemConfigManager systemConfigManager;
 
     @Resource
-    private PushService pushService; // 注入 PushService 以便发送通知
+    private PushService pushService;
 
     @Scheduled(fixedDelay = 60000) // 每分钟检查一次
     public void scheduledGuorenMonitorTask() {
@@ -38,9 +38,8 @@ public class GuorenMonitorService {
             return;
         }
 
-        LocalTime now = LocalTime.now();
-        DayOfWeek today = DayOfWeek.from(now); // 获取今天是星期几
-        int currentDayOfWeek = today.getValue(); // 1 (Monday) to 7 (Sunday)
+        LocalDateTime now = LocalDateTime.now();
+        LocalTime currentTime = now.toLocalTime();
 
         for (GuorenConfig guorenConfig : guorenConfigs) {
             // 检查账号是否启用
@@ -48,19 +47,7 @@ public class GuorenMonitorService {
                 continue;
             }
 
-            // 检查当前星期是否在监控范围内
-            String monitorWeekdaysStr = guorenConfig.getMonitorWeekdays();
-            if (monitorWeekdaysStr != null && !monitorWeekdaysStr.isEmpty()) {
-                List<Integer> monitorWeekdays = Arrays.stream(monitorWeekdaysStr.split(","))
-                        .map(String::trim)
-                        .map(Integer::parseInt)
-                        .collect(Collectors.toList());
-                if (!monitorWeekdays.contains(currentDayOfWeek)) {
-                    continue; // 今天不需要监控此账号
-                }
-            }
-
-            // 检查当前时间是否在监控时间点内
+            // 检查是否在监控时间范围内
             String monitorTimesStr = guorenConfig.getMonitorTimes();
             if (monitorTimesStr == null || monitorTimesStr.isEmpty()) {
                 log.warn("果仁网账号 [{}] 监控时间点未配置，跳过检查。");
@@ -72,7 +59,7 @@ public class GuorenMonitorService {
                         try {
                             LocalTime scheduledTime = LocalTime.parse(timeStr.trim());
                             // 检查当前时间是否在计划时间的一分钟内
-                            return now.isAfter(scheduledTime.minusMinutes(1)) && now.isBefore(scheduledTime.plusMinutes(1));
+                            return currentTime.isAfter(scheduledTime.minusMinutes(1)) && currentTime.isBefore(scheduledTime.plusMinutes(1));
                         } catch (Exception e) {
                             log.error("解析果仁网监控时间点失败: {} - {}", guorenConfig.getUsername(), timeStr, e);
                             return false;
@@ -83,7 +70,7 @@ public class GuorenMonitorService {
                 log.info("执行果仁网账号 [{}] 监控任务...", guorenConfig.getUsername());
                 // TODO: 在这里添加实际的果仁网监控逻辑
                 // 例如：调用果仁网API，获取数据，判断是否需要推送通知
-                pushService.send("果仁网监控通知", String.format("果仁网账号 [%s] 达到监控时间点，执行监控。", guorenConfig.getUsername()));
+                pushService.pushMessage("果仁网监控通知", String.format("果仁网账号 [%s] 达到监控时间点，执行监控。", guorenConfig.getUsername()));
             }
         }
     }

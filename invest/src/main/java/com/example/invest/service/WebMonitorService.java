@@ -4,11 +4,12 @@ import com.example.invest.model.WebMonitorConfig;
 import com.example.invest.push.DingTalkPushUtil;
 import com.example.invest.push.WeChatPushUtil;
 import com.example.invest.util.ConfigManager;
-import com.example.invest.util.CookieManager;
+import com.example.invest.service.CookieManager;
 import com.example.invest.util.SystemConfigManager;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import java.net.URL;
 import javax.annotation.Resource;
@@ -28,7 +30,7 @@ import java.io.IOException;
 @Service
 public class WebMonitorService {
 
-    @Resource
+    @Autowired
     private ConfigManager configManager;
     
     @Resource
@@ -55,6 +57,8 @@ public class WebMonitorService {
     // 存储每个配置的最后内容（手动执行）
     private final Map<String, String> lastManualContents = new ConcurrentHashMap<>();
     
+    private final AtomicBoolean isMonitoring = new AtomicBoolean(false);
+
     @PostConstruct
     public void init() {
         if (!systemConfigManager.getConfig().isEnablePageChangeMonitor()) {
@@ -63,7 +67,7 @@ public class WebMonitorService {
         }
 
         // 项目启动时加载所有配置
-        List<WebMonitorConfig> configs = configManager.loadConfigs();
+        List<WebMonitorConfig> configs = configManager.loadWebMonitorConfigs();
         for (WebMonitorConfig config : configs) {
             if (config.isEnabled()) {
                 // 初始化时获取一次内容
@@ -85,7 +89,7 @@ public class WebMonitorService {
             return;
         }
 
-        List<WebMonitorConfig> configs = configManager.loadConfigs();
+        List<WebMonitorConfig> configs = configManager.loadWebMonitorConfigs();
         LocalTime now = LocalTime.now();
         
         for (WebMonitorConfig config : configs) {
@@ -137,7 +141,7 @@ public class WebMonitorService {
     
     // 手动执行监控
     public void executeMonitorManually(String configId) {
-        List<WebMonitorConfig> configs = configManager.loadConfigs();
+        List<WebMonitorConfig> configs = configManager.loadWebMonitorConfigs();
         for (WebMonitorConfig config : configs) {
             if (config.getId().equals(configId)) {
                 try {
@@ -191,5 +195,32 @@ public class WebMonitorService {
         // 简单实现：根据当前时间的小时数来判断
         int currentHour = LocalTime.now().getHour();
         return currentHour % config.getInterval() == 0;
+    }
+
+    public void startMonitoring() {
+        isMonitoring.set(true);
+        log.info("网页监控已启动");
+    }
+
+    public void stopMonitoring() {
+        isMonitoring.set(false);
+        log.info("网页监控已停止");
+    }
+
+    @Scheduled(fixedDelay = 60000) // 每分钟执行一次
+    public void monitorWebsites() {
+        if (!isMonitoring.get()) {
+            return;
+        }
+
+        List<WebMonitorConfig> configs = configManager.loadWebMonitorConfigs();
+        for (WebMonitorConfig config : configs) {
+            try {
+                // TODO: 实现网页监控逻辑
+                log.info("正在监控网页: {}", config.getUrl());
+            } catch (Exception e) {
+                log.error("监控网页时发生错误: {}", config.getUrl(), e);
+            }
+        }
     }
 } 

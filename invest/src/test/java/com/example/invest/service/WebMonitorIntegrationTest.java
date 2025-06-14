@@ -2,7 +2,7 @@ package com.example.invest.service;
 
 import com.example.invest.model.WebMonitorConfig;
 import com.example.invest.util.ConfigManager;
-import com.example.invest.util.CookieManager;
+import com.example.invest.service.CookieManager;
 import com.example.invest.util.SystemConfigManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,8 +55,8 @@ public class WebMonitorIntegrationTest {
         System.out.println("开始执行网页监控集成测试 (读取配置文件中的配置并带Cookie)...请查看服务器端日志，确认Cookie是否被发送。");
 
         // 验证配置文件中是否存在目标配置
-        List<WebMonitorConfig> allConfigs = configManager.loadConfigs();
-        WebMonitorConfig targetConfig = allConfigs.get(0);
+        List<WebMonitorConfig> configs = configManager.loadWebMonitorConfigs();
+        WebMonitorConfig targetConfig = configs.get(0);
 
         assertTrue(targetConfig.isEnabled(), "请确保 config/web_monitor.json 中测试配置是启用的！");
 

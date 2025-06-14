@@ -1,7 +1,7 @@
 package com.example.invest.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.example.invest.util.CookieManager;
+import com.example.invest.service.CookieManager;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

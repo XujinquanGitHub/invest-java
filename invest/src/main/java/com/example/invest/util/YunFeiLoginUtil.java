@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
+import com.example.invest.service.CookieManager;
 
 /**
  * 云飞系统登录工具类
@@ -68,7 +69,7 @@ public class YunFeiLoginUtil {
         // 保存Cookie到文件
         if (CollUtil.isNotEmpty(cookies)) {
             String collect = String.join(";", cookies);
-            cookieManager.saveCookies(BASE_URL, collect);
+            cookieManager.setCookies(BASE_URL, collect);
             return collect;
         }
 

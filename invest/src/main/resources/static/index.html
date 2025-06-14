@@ -1,6 +1,53 @@
-<html>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>投资助手</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/element-plus/2.3.8/theme-chalk/index.min.css">
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/element-plus/2.3.8/index.full.min.js"></script>
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .header {
+            margin-bottom: 20px;
+        }
+        .menu-list {
+            list-style: none;
+            padding: 0;
+        }
+        .menu-item {
+            margin-bottom: 15px;
+        }
+        .menu-link {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #409eff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .menu-link:hover {
+            background-color: #66b1ff;
+        }
+    </style>
+</head>
 <body>
-<h1>hello word!!!</h1>
-<p>this is a html page</p>
+    <div class="container">
+        <div class="header">
+            <h2>投资助手</h2>
+        </div>
+
+        <ul class="menu-list">
+            <li class="menu-item">
+                <a href="stock-strategy.html" class="menu-link">股票策略配置</a>
+            </li>
+            <!-- 其他菜单项可以在这里添加 -->
+        </ul>
+    </div>
 </body>
 </html>

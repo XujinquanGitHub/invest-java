@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -24,7 +25,7 @@ public class BondController {
     @PostMapping("/allBond1")
     public List<JSONObject> allBond1(@RequestBody String para) {
         try {
-            String decode = URLDecoder.decode(para);
+            String decode = URLDecoder.decode(para, StandardCharsets.UTF_8.name());
             String substring = decode.substring(0, decode.length() - 1);
             JSONArray data = JSON.parseObject(substring, JSONObject.class).getJSONArray("para");
             Map<String, BigDecimal> collect = data.stream().map(u -> (JSONObject) u)

@@ -8,6 +8,7 @@ import java.util.List;
 public class SystemConfig {
     private boolean enableYunFeiMonitor;    // 是否开启云飞系统监控
     private boolean enablePageChangeMonitor; // 是否开启页面变化监控
+    private boolean enableGuorenMonitor;     // 是否开启果仁网监控
     private String configPath;              // 配置文件路径
 
     // 微信推送配置

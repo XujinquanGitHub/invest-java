@@ -7,10 +7,12 @@ import com.example.invest.util.SystemConfigManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
+
 @Component
 public class WeChatPushUtil {
     
-    @Autowired
+    @Resource
     private SystemConfigManager systemConfigManager;
 
     public void send(String title, String content) {

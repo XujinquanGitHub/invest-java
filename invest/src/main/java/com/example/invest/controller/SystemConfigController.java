@@ -5,11 +5,13 @@ import com.example.invest.util.SystemConfigManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
+
 @RestController
 @RequestMapping("/api/system")
 public class SystemConfigController {
     
-    @Autowired
+    @Resource
     private SystemConfigManager systemConfigManager;
     
     @GetMapping("/config")

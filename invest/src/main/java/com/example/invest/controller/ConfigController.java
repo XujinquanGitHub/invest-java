@@ -8,12 +8,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import javax.annotation.Resource;
 
 @RestController
 @RequestMapping("/api/configs")
 public class ConfigController {
     
-    @Autowired
+    @Resource
     private ConfigManager configManager;
     
     @GetMapping

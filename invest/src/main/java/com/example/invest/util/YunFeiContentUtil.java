@@ -4,23 +4,31 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import com.example.invest.model.SystemConfig;
 import com.example.invest.service.PushService;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.List;
+import javax.annotation.Resource;
+
+@Slf4j
 @Component
 public class YunFeiContentUtil {
     
-    @Autowired
+    @Resource
     private YunFeiLoginUtil yunFeiLoginUtil;
     
-    @Autowired
+    @Resource
     private PushService pushService;
     
-    @Autowired
+    @Resource
     private SystemConfigManager systemConfigManager;
     
     private static final String BASE_URL = "https://www.ycyflh.com";
@@ -66,13 +74,50 @@ public class YunFeiContentUtil {
         }
     }
 
-    public void someMethod() {
+    @Scheduled(fixedDelay = 60000) // 每分钟检查一次
+    public void scheduledYunFeiMonitorTask() {
         SystemConfig config = systemConfigManager.getConfig();
-        if (config.isEnableYunFeiMonitor()) {
-            // 执行云飞系统监控
+        if (!config.isEnableYunFeiMonitor()) {
+            //log.info("云飞系统监控已禁用，跳过检查。"); // 避免频繁日志
+            return;
         }
-        if (config.isEnablePageChangeMonitor()) {
-            // 执行页面变化监控
+
+        String monitorTimesStr = config.getYunFeiMonitorTimes();
+        if (monitorTimesStr == null || monitorTimesStr.isEmpty()) {
+            log.warn("云飞监控时间点未配置，跳过检查。");
+            return;
+        }
+
+        LocalTime now = LocalTime.now();
+        boolean shouldExecute = Arrays.stream(monitorTimesStr.split(","))
+                .anyMatch(timeStr -> {
+                    try {
+                        LocalTime scheduledTime = LocalTime.parse(timeStr.trim());
+                        // 检查当前时间是否在计划时间的一分钟内
+                        return now.isAfter(scheduledTime.minusMinutes(1)) && now.isBefore(scheduledTime.plusMinutes(1));
+                    } catch (Exception e) {
+                        log.error("解析云飞监控时间点失败: {}", timeStr, e);
+                        return false;
+                    }
+                });
+
+        if (shouldExecute) {
+            log.info("执行云飞系统监控任务...");
+            String strategyIdsStr = config.getYunFeiStrategyIds();
+            if (strategyIdsStr != null && !strategyIdsStr.isEmpty()) {
+                List<String> strategyIds = Arrays.asList(strategyIdsStr.split(","));
+                for (String id : strategyIds) {
+                    try {
+                        log.info("获取云飞策略详情，ID: {}", id);
+                        getStrategyDetail(id.trim());
+                        Thread.sleep(2000); // 增加延迟，避免请求过快
+                    } catch (Exception e) {
+                        log.error("获取云飞策略详情失败，ID: {}", id, e);
+                    }
+                }
+            } else {
+                log.warn("云飞策略ID未配置。");
+            }
         }
     }
 } 

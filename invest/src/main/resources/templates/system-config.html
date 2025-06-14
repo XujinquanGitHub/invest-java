@@ -193,6 +193,10 @@
                 async: false,
                 success: function(response) {
                     config = response;
+                    console.log('GET /api/system/config 响应:', response);
+                },
+                error: function(xhr, status, error) {
+                    console.error('GET /api/system/config 错误:', status, error, xhr.responseText);
                 }
             });
             return config;
@@ -200,21 +204,30 @@
 
         // 保存配置
         function saveSystemConfig(config) {
+            console.log('POST /api/system/config 请求数据:', config);
             $.ajax({
                 url: '/api/system/config',
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(config),
-                async: false
+                async: false,
+                success: function() {
+                    console.log('POST /api/system/config 成功');
+                },
+                error: function(xhr, status, error) {
+                    console.error('POST /api/system/config 错误:', status, error, xhr.responseText);
+                }
             });
         }
 
         // 页面加载时获取配置
         $(document).ready(function() {
             const config = getSystemConfig();
+            console.log('页面加载时获取的系统配置:', config);
             if (config) {
                 document.getElementById('enableYunFeiMonitor').checked = config.enableYunFeiMonitor;
                 document.getElementById('enablePageChangeMonitor').checked = config.enablePageChangeMonitor;
+                document.getElementById('enableGuorenMonitor').checked = config.enableGuorenMonitor;
                 document.getElementById('configPath').value = config.configPath || '';
                 document.getElementById('wechatPushToken').value = config.wechatPushToken || '';
                 document.getElementById('wechatTemplateId').value = config.wechatTemplateId || '';
@@ -228,7 +241,11 @@
                 // 加载果仁网配置
                 if (config.guorenConfigs) {
                     guorenConfigs = config.guorenConfigs;
+                    console.log('页面加载时加载的果仁网配置:', guorenConfigs);
                     renderGuorenConfigTable();
+                } else {
+                    guorenConfigs = []; // 确保初始化为空数组
+                    console.log('页面加载时果仁网配置为空，初始化为:', guorenConfigs);
                 }
             }
         });
@@ -240,6 +257,7 @@
             const config = {
                 enableYunFeiMonitor: document.getElementById('enableYunFeiMonitor').checked,
                 enablePageChangeMonitor: document.getElementById('enablePageChangeMonitor').checked,
+                enableGuorenMonitor: document.getElementById('enableGuorenMonitor').checked,
                 configPath: document.getElementById('configPath').value,
                 wechatPushToken: document.getElementById('wechatPushToken').value,
                 wechatTemplateId: document.getElementById('wechatTemplateId').value,
@@ -252,6 +270,7 @@
                 guorenConfigs: guorenConfigs
             };
             
+            console.log('主表单保存时发送的系统配置:', config);
             saveSystemConfig(config);
             alert('配置保存成功！');
         });
@@ -268,6 +287,11 @@
             const tbody = $('#guorenConfigTable tbody');
             tbody.empty();
             
+            if (guorenConfigs.length === 0) {
+                tbody.append('<tr><td colspan="6" class="text-center">暂无账号配置</td></tr>');
+                return;
+            }
+
             guorenConfigs.forEach((config, index) => {
                 tbody.append(`
                     <tr>
@@ -312,15 +336,21 @@
                 monitorWeekdays: $('#guorenMonitorWeekdays').val()
             };
             
+            console.log('模态框保存的果仁网账号数据:', config);
+
             if (index === '') {
                 guorenConfigs.push(config);
+                console.log('添加果仁网账号，当前所有账号:', guorenConfigs);
             } else {
                 guorenConfigs[parseInt(index)] = config;
+                console.log('更新果仁网账号，当前所有账号:', guorenConfigs);
             }
             
             // 更新系统配置
             const systemConfig = getSystemConfig();
+            console.log('保存果仁网账号时获取的当前系统配置（在发送前）:', systemConfig);
             systemConfig.guorenConfigs = guorenConfigs;
+            console.log('保存果仁网账号时最终发送的系统配置（包含更新后的果仁网账号）:', systemConfig);
             saveSystemConfig(systemConfig);
             
             guorenConfigModal.hide();
@@ -330,10 +360,13 @@
         function deleteGuorenConfig(index) {
             if (confirm('确定要删除这个账号配置吗？')) {
                 guorenConfigs.splice(index, 1);
+                console.log('删除果仁网账号，当前所有账号:', guorenConfigs);
                 
                 // 更新系统配置
                 const systemConfig = getSystemConfig();
+                console.log('删除果仁网账号时获取的当前系统配置（在发送前）:', systemConfig);
                 systemConfig.guorenConfigs = guorenConfigs;
+                console.log('删除果仁网账号时最终发送的系统配置（包含更新后的果仁网账号）:', systemConfig);
                 saveSystemConfig(systemConfig);
                 
                 renderGuorenConfigTable();

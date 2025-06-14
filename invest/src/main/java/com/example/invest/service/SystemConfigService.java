@@ -5,10 +5,12 @@ import com.example.invest.util.SystemConfigManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
+
 @Service
 public class SystemConfigService {
 
-    @Autowired
+    @Resource
     private SystemConfigManager systemConfigManager;
 
     public SystemConfig getSystemConfig() {

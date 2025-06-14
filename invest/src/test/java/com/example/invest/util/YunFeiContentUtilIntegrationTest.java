@@ -10,25 +10,26 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import javax.annotation.Resource;
+
 /**
  * 集成测试：测试 YunFeiContentUtil 与真实依赖的交互。
  * 请确保您的 config/system_config.json 中配置了有效的云飞系统登录凭据。
  * 运行此测试需要网络连接。
  */
 @SpringBootTest
-@Disabled
-public class YunFeiContentUtilIntegrationTest {
+class YunFeiContentUtilIntegrationTest {
 
-    @Autowired
+    @Resource
     private YunFeiContentUtil yunFeiContentUtil;
 
-    @Autowired
+    @Resource
     private YunFeiLoginUtil yunFeiLoginUtil;
 
-    @Autowired
+    @Resource
     private PushService pushService;
 
-    @Autowired
+    @Resource
     private SystemConfigManager systemConfigManager;
 
     @Test
@@ -46,14 +47,15 @@ public class YunFeiContentUtilIntegrationTest {
 
         System.out.println("当前系统配置中 'enableYunFeiMonitor' 的值为: " + initialEnableYunFeiMonitor);
 
-        yunFeiContentUtil.someMethod();
     }
 
     @Test
     void testGetStrategyDetail_realCall_successScenario() {
         SystemConfig config = systemConfigManager.getConfig();
-        String username = config.getYunFeiUsername();
-        String password = config.getYunFeiPassword();
+        // String username = config.getYunFeiUsername();
+        // String password = config.getYunFeiPassword();
+        String username = "w9sw9u";
+        String password = "b2rgyu";
 
         if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
             System.err.println("云飞系统登录凭据未在 config/system_config.json 中配置，跳过此测试。");
@@ -65,7 +67,7 @@ public class YunFeiContentUtilIntegrationTest {
         assertNotNull(cookies, "真实登录失败，未获取到 Cookie。请检查用户名和密码。");
         System.out.println("真实登录成功，获取到 Cookie: " + cookies.substring(0, Math.min(cookies.length(), 50)) + "...");
 
-        String testStrategyId = "请替换为真实的云飞策略ID";
+        String testStrategyId = "611793";
 
         System.out.println("正在尝试获取策略详情，ID: " + testStrategyId);
 

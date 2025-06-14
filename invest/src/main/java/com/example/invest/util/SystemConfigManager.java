@@ -14,7 +14,7 @@ import java.util.ArrayList;
 @Slf4j
 @Component
 public class SystemConfigManager {
-    private static final String CONFIG_FILE = "config/system_config.json";
+    private static final String CONFIG_FILE = "D:\\Projects\\data\\config\\system_config.json";
     private SystemConfig config;
     
     public SystemConfigManager() {
@@ -27,7 +27,7 @@ public class SystemConfigManager {
     
     public void saveConfig(SystemConfig config) {
         try {
-            File configDir = new File("config");
+            File configDir = new File("D:\\Projects\\data\\config");
             if (!configDir.exists()) {
                 configDir.mkdirs();
             }
@@ -43,6 +43,12 @@ public class SystemConfigManager {
             File configFile = new File(CONFIG_FILE);
             if (!configFile.exists()) {
                 config = new SystemConfig();
+                config.setEnableYunFeiMonitor(true);
+                config.setEnablePageChangeMonitor(true);
+                config.setEnableGuorenMonitor(false);
+                config.setConfigPath("D:\\Projects\\data\\config");
+                config.setWechatPushToken("your_wechat_push_token");
+                config.setWechatTemplateId("your_wechat_template_id");
                 config.setGuorenConfigs(new ArrayList<>());
                 saveConfig(config);
                 return;
@@ -55,6 +61,12 @@ public class SystemConfigManager {
         } catch (IOException e) {
             log.error("加载系统配置失败", e);
             config = new SystemConfig();
+            config.setEnableYunFeiMonitor(true);
+            config.setEnablePageChangeMonitor(true);
+            config.setEnableGuorenMonitor(false);
+            config.setConfigPath("D:\\Projects\\data\\config");
+            config.setWechatPushToken("your_wechat_push_token");
+            config.setWechatTemplateId("your_wechat_template_id");
             config.setGuorenConfigs(new ArrayList<>());
         }
     }

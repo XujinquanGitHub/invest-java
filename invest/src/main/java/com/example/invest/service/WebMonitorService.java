@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import java.net.URL;
 import javax.annotation.Resource;
+import java.io.IOException;
 
 @Slf4j
 @Service
@@ -42,8 +43,17 @@ public class WebMonitorService {
     @Resource
     private CookieManager cookieManager; // 注入 CookieManager
     
+    // 存储每个配置的最后检查时间
+    private final Map<String, Long> lastCheckTimes = new ConcurrentHashMap<>();
+    
     // 存储每个配置的最后内容
     private final Map<String, String> lastContents = new ConcurrentHashMap<>();
+    
+    // 存储每个配置的最后检查时间（手动执行）
+    private final Map<String, Long> lastManualCheckTimes = new ConcurrentHashMap<>();
+    
+    // 存储每个配置的最后内容（手动执行）
+    private final Map<String, String> lastManualContents = new ConcurrentHashMap<>();
     
     @PostConstruct
     public void init() {
@@ -92,35 +102,64 @@ public class WebMonitorService {
                 }
             }
             
-            // 检查是否到达检查间隔
-            if (shouldCheck(config)) {
-                try {
-                    String newContent = fetchContent(config);
-                    String lastContent = lastContents.get(config.getId());
+            // 检查是否达到检查间隔
+            long currentTime = System.currentTimeMillis();
+            Long lastCheckTime = lastCheckTimes.get(config.getId());
+            if (lastCheckTime != null && currentTime - lastCheckTime < config.getInterval() * 60 * 1000) {
+                continue;
+            }
+            
+            try {
+                String newContent = fetchContent(config);
+                String lastContent = lastContents.get(config.getId());
+                
+                if (lastContent != null && !lastContent.equals(newContent)) {
+                    // 内容发生变化，发送通知
+                    String message = String.format("监控配置 [%s] 内容已更新\nURL: %s", 
+                        config.getName(), config.getUrl());
                     
-                    if (lastContent != null && !lastContent.equals(newContent)) {
-                        // 内容发生变化，发送通知
-                        String message = String.format("监控配置 [%s] 内容已更新\nURL: %s", 
-                            config.getName(), config.getUrl());
-                        
-                        // 发送钉钉通知
-                        dingTalkPushUtil.send("网页监控通知", message);
-                        // 发送微信通知
-                        weChatPushUtil.send("网页监控通知", message);
-                        
-                        log.info("检测到内容变化: {}", config.getName());
-                    }
+                    // 发送钉钉通知
+                    dingTalkPushUtil.send("网页监控通知", message);
+                    // 发送微信通知
+                    weChatPushUtil.send("网页监控通知", message);
                     
-                    // 更新最后内容
-                    lastContents.put(config.getId(), newContent);
-                } catch (Exception e) {
-                    log.error("检查配置失败: " + config.getName(), e);
+                    log.info("检测到内容变化: {}", config.getName());
                 }
+                
+                // 更新最后内容
+                lastContents.put(config.getId(), newContent);
+                lastCheckTimes.put(config.getId(), currentTime);
+            } catch (Exception e) {
+                log.error("检查配置失败: " + config.getName(), e);
             }
         }
     }
     
-    private String fetchContent(WebMonitorConfig config) throws Exception {
+    // 手动执行监控
+    public void executeMonitorManually(String configId) {
+        List<WebMonitorConfig> configs = configManager.loadConfigs();
+        for (WebMonitorConfig config : configs) {
+            if (config.getId().equals(configId)) {
+                try {
+                    String content = fetchContent(config);
+                    String lastContent = lastManualContents.get(config.getId());
+                    
+                    if (lastContent != null && !lastContent.equals(content)) {
+                        log.info("手动执行 - 检测到内容变化 - 配置ID: {}, URL: {}", config.getId(), config.getUrl());
+                        // TODO: 在这里添加内容变化后的处理逻辑，例如发送通知
+                    }
+                    
+                    lastManualContents.put(config.getId(), content);
+                    lastManualCheckTimes.put(config.getId(), System.currentTimeMillis());
+                } catch (Exception e) {
+                    log.error("手动执行 - 检查配置时出错 - 配置ID: {}, URL: {}, 错误: {}", config.getId(), config.getUrl(), e.getMessage());
+                }
+                break;
+            }
+        }
+    }
+    
+    private String fetchContent(WebMonitorConfig config) throws IOException {
         String urlString = config.getUrl();
         String domain = new URL(urlString).getHost();
         String cookies = cookieManager.getCookies(domain);

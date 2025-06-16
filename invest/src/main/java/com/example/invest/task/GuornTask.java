@@ -177,9 +177,12 @@ public class GuornTask {
 
     private String buildStockMessage(List<Map<String, String>> stockList) {
         StringBuilder sb = new StringBuilder();
-        sb.append("今日选股结果：\n");
+        sb.append("### 今日选股结果\n\n");
+        sb.append("| 股票名称 | 股票代码 | 现价 | 涨跌幅 |\n");
+        sb.append("| --- | --- | --- | --- |\n");
+        
         for (Map<String, String> stock : stockList) {
-            sb.append(String.format("%s(%s) 现价:%s 涨跌幅:%s\n",
+            sb.append(String.format("| %s | %s | %s | %s |\n",
                     stock.get("name"),
                     stock.get("code"),
                     stock.get("price"),

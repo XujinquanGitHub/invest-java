@@ -2,52 +2,53 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>投资助手</title>
-    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/element-plus/2.3.8/theme-chalk/index.min.css">
-    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdn.bootcdn.net/ajax/libs/element-plus/2.3.8/index.full.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>投资管理系统</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .container {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 20px;
-        }
-        .header {
+        .feature-item {
             margin-bottom: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
         }
-        .menu-list {
-            list-style: none;
-            padding: 0;
-        }
-        .menu-item {
-            margin-bottom: 15px;
-        }
-        .menu-link {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #409eff;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-        }
-        .menu-link:hover {
-            background-color: #66b1ff;
+        .feature-item:hover {
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h2>投资助手</h2>
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">投资管理系统</h1>
+        
+        <div class="row">
+            <div class="col-md-4">
+                <div class="feature-item">
+                    <h3>系统配置</h3>
+                    <p>配置系统参数和策略</p>
+                    <a href="system-config.html" class="btn btn-primary">进入配置</a>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-item">
+                    <h3>数据监控</h3>
+                    <p>实时监控投资数据</p>
+                    <button class="btn btn-primary" disabled>开发中</button>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-item">
+                    <h3>报表分析</h3>
+                    <p>查看投资分析报表</p>
+                    <button class="btn btn-primary" disabled>开发中</button>
+                </div>
+            </div>
         </div>
-
-        <ul class="menu-list">
-            <li class="menu-item">
-                <a href="stock-strategy.html" class="menu-link">股票策略配置</a>
-            </li>
-            <!-- 其他菜单项可以在这里添加 -->
-        </ul>
     </div>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

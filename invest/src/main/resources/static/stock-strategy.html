@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>股票策略配置</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/element-plus/2.3.8/theme-chalk/index.min.css">
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/element-plus/2.3.8/index.full.min.js"></script>
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .header {
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: inline-block;
+            width: 120px;
+            text-align: right;
+            margin-right: 10px;
+        }
+        .stock-list {
+            margin-top: 20px;
+        }
+        .stock-item {
+            margin-bottom: 10px;
+        }
+        .actions {
+            margin-top: 20px;
+            margin-left: 130px;
+        }
+        .btn {
+            padding: 8px 15px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background-color: #409eff;
+            color: white;
+        }
+        .btn-success {
+            background-color: #67c23a;
+            color: white;
+        }
+        .btn-danger {
+            background-color: #f56c6c;
+            color: white;
+        }
+        .input {
+            padding: 8px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            width: 200px;
+        }
+        .input-number {
+            width: 100px;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 20px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #409eff;
+        }
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+        .help-text {
+            color: #909399;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>股票策略配置</h2>
+        </div>
+
+        <div class="form-group">
+            <label>策略状态：</label>
+            <label class="switch">
+                <input type="checkbox" id="enabled" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="form-group">
+            <label>统计天数：</label>
+            <input type="number" id="days" class="input input-number" min="1" max="365" value="20">
+        </div>
+
+        <div class="form-group">
+            <label>执行时间：</label>
+            <input type="text" id="cron" class="input" value="0 30 15 * * ?" placeholder="Cron表达式">
+            <span class="help-text">格式：秒 分 时 日 月 周</span>
+        </div>
+
+        <div class="form-group">
+            <label>股票列表：</label>
+            <div class="stock-list" id="stockList">
+                <!-- 股票列表将通过 JavaScript 动态添加 -->
+            </div>
+            <div style="margin-left: 130px;">
+                <button class="btn btn-primary" onclick="addStock()">添加股票</button>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="saveConfig()">保存配置</button>
+            <button class="btn btn-success" onclick="executeStrategy()">执行策略</button>
+        </div>
+    </div>
+
+    <script>
+        // 加载配置
+        function loadConfig() {
+            $.get('/api/stock-strategy/config', function(data) {
+                $('#enabled').prop('checked', data.enabled);
+                $('#days').val(data.days);
+                $('#cron').val(data.cron);
+                
+                // 清空并重新添加股票列表
+                $('#stockList').empty();
+                data.stockCodes.forEach(function(code) {
+                    addStock(code);
+                });
+            }).fail(function(error) {
+                alert('加载配置失败：' + error.responseText);
+            });
+        }
+
+        // 保存配置
+        function saveConfig() {
+            const config = {
+                enabled: $('#enabled').prop('checked'),
+                days: parseInt($('#days').val()),
+                cron: $('#cron').val(),
+                stockCodes: []
+            };
+
+            // 收集股票代码
+            $('.stock-code').each(function() {
+                const code = $(this).val().trim();
+                if (code) {
+                    config.stockCodes.push(code);
+                }
+            });
+
+            $.ajax({
+                url: '/api/stock-strategy/config',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(config),
+                success: function() {
+                    alert('保存配置成功');
+                },
+                error: function(error) {
+                    alert('保存配置失败：' + error.responseText);
+                }
+            });
+        }
+
+        // 执行策略
+        function executeStrategy() {
+            $.post('/api/stock-strategy/execute', function() {
+                alert('策略执行成功');
+            }).fail(function(error) {
+                alert('策略执行失败：' + error.responseText);
+            });
+        }
+
+        // 添加股票输入框
+        function addStock(code = '') {
+            const stockItem = $('<div class="stock-item"></div>');
+            const input = $('<input type="text" class="input stock-code" placeholder="股票代码，例如：000001.SZ">').val(code);
+            const deleteBtn = $('<button class="btn btn-danger" style="margin-left: 10px;">删除</button>');
+            
+            deleteBtn.click(function() {
+                stockItem.remove();
+            });
+
+            stockItem.append(input).append(deleteBtn);
+            $('#stockList').append(stockItem);
+        }
+
+        // 页面加载时获取配置
+        $(document).ready(function() {
+            loadConfig();
+        });
+    </script>
+</body>
+</html> 

@@ -32,14 +32,16 @@ public class DingTalkPushUtil {
             log.warn("钉钉推送配置不完整 (Webhook URL 为空)，跳过推送。");
             return;
         }
-        title = "每日提醒" + title;
+
         JSONObject data = new JSONObject();
         data.put("msgtype", "markdown");
-        data.put("title", title);
+
+        // 添加关键词前缀
+        String markdownContent = "【投资助手】\n\n" + content;
 
         JSONObject markdown = new JSONObject()
                 .fluentPut("title", title)
-                .fluentPut("text", title + ":\n" + content);
+                .fluentPut("text", markdownContent);
         data.put("markdown", markdown);
 
         data.put("at", new JSONObject().fluentPut("isAtAll", true));

@@ -26,11 +26,11 @@ public class PushServiceImpl implements PushService {
             }
 
             // 构建推送消息
-            String message = String.format("标题：%s\n内容：%s", title, content);
+            String message = String.format("### %s\n\n%s", title, content);
             
             // 发送微信推送
             String requestBody = String.format(
-                "{\"appToken\":\"%s\",\"content\":\"%s\",\"summary\":\"%s\",\"contentType\":1,\"topicIds\":[\"%s\"]}",
+                "{\"appToken\":\"%s\",\"content\":\"%s\",\"summary\":\"%s\",\"contentType\":2,\"topicIds\":[\"%s\"]}",
                 config.getWechatPushToken(),
                 message,
                 title,
@@ -59,11 +59,11 @@ public class PushServiceImpl implements PushService {
             }
 
             // 构建错误消息
-            String message = String.format("错误通知\n标题：%s\n错误信息：%s", title, error);
+            String message = String.format("### 错误通知\n\n**%s**\n\n```\n%s\n```", title, error);
             
             // 发送微信推送
             String requestBody = String.format(
-                "{\"appToken\":\"%s\",\"content\":\"%s\",\"summary\":\"错误通知: %s\",\"contentType\":1,\"topicIds\":[\"%s\"]}",
+                "{\"appToken\":\"%s\",\"content\":\"%s\",\"summary\":\"错误通知: %s\",\"contentType\":2,\"topicIds\":[\"%s\"]}",
                 config.getWechatPushToken(),
                 message,
                 title,

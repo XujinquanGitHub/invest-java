@@ -70,7 +70,8 @@ public class FundTask {
         CompletionService<Map<String, TradeDataModel>> completionService =
                 new ExecutorCompletionService<>(Executors.newFixedThreadPool(3));
         List<List<String>> split =
-                CollectionUtil.split(collect.stream().map(u -> getAddCode(u.getFund_id())).collect(Collectors.toList()), 100);
+                CollectionUtil.split(collect.stream().map(u -> getAddCode(u.getFund_id())).collect(Collectors.toList()),
+                        100);
         split.forEach(codeList -> completionService.submit(() -> OtherClient.getTradeData(codeList)));
         Map<String, TradeDataModel> tradeMap = new HashMap<>();
         split.forEach(cinemaGroup -> {
@@ -133,8 +134,8 @@ public class FundTask {
 
     private List<FundOnModel> filterFundList(List<FundOnModel> collect, List<String> myCodeList) {
         return collect.stream().filter(u ->
-                (StringUtils.isNotBlank(u.getVolume()) && NumberUtil.isNumber(u.getVolume()) &&
-                        new BigDecimal(u.getVolume()).doubleValue() > 100) || myCodeList.contains(u.getFund_id()))
+                        (StringUtils.isNotBlank(u.getVolume()) && NumberUtil.isNumber(u.getVolume()) &&
+                                new BigDecimal(u.getVolume()).doubleValue() > 100) || myCodeList.contains(u.getFund_id()))
                 .collect(Collectors.toList());
     }
 

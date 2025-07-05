@@ -1,24 +1,21 @@
 package com.example.invest.controller;
 
-import cn.hutool.http.HttpUtil;
-import cn.hutool.http.Method;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.math.BigDecimal;
-import java.net.URLDecoder;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
+
+import com.example.invest.job.FundTask;
+import com.example.invest.model.YunFundModel;
+import com.example.invest.model.JslFundModel;
 
 @RestController
 @RequestMapping("/api/proxy")
@@ -30,13 +27,14 @@ public class ProxyController {
         this.restTemplate = new RestTemplate();
     }
 
-    @RequestMapping(value = "/**", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
+    @RequestMapping(value = "/**", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT,
+            RequestMethod.DELETE})
     public ResponseEntity<String> proxyRequest(
             @RequestParam(required = false) String targetUrl,
             @RequestBody(required = false) String body,
             HttpMethod method,
             HttpServletRequest request) {
-        
+
         if (targetUrl == null || targetUrl.isEmpty()) {
             return ResponseEntity.badRequest().body("目标URL不能为空");
         }
@@ -79,6 +77,19 @@ public class ProxyController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("代理请求失败: " + e.getMessage());
         }
+    }
+
+    @GetMapping(value = "/allLof")
+    public JSONObject allLof(Map<String, BigDecimal> para) {
+        List<JSONObject> fundNavInfo = FundTask.getFundNavInfo();
+        List<JslFundModel> collect = fundNavInfo.stream()
+                .map(u -> u.toJavaObject(YunFundModel.class))
+                .map(JslFundModel::tran)
+                .collect(Collectors.toList());
+        List<JSONObject> result = collect.stream()
+                .map(u -> new JSONObject().fluentPut("cell", u).fluentPut("id", u.getFund_id()))
+                .collect(Collectors.toList());
+        return new JSONObject().fluentPut("rows", result).fluentPut("page", 1);
     }
 
 } 
